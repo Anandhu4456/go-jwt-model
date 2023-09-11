@@ -1,7 +1,7 @@
-package router
+package routers
 
 import ("github.com/gin-gonic/gin"
-		"go-jwt-model/controller"
+		"go-jwt/controller"
 )
 
 func AuthRoutes(incomingRoutes *gin.Engine){
