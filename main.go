@@ -1,8 +1,9 @@
 package main
 
 import (
-
 	"os"
+
+	"go-jwt-model/routers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,11 +17,11 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger())
 
-	
-
+	routers.AuthRoutes(r)
 	r.GET("/user", func(c *gin.Context) {
-		c.JSON(200,gin.H{"message":"hey"})
-		
+		c.JSON(200, gin.H{"message": "hey"})
+
 	})
+
 	r.Run(":" + port)
 }
