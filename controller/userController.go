@@ -145,35 +145,34 @@ func GetUsers() gin.HandlerFunc {
 		startIndex := (page - 1) * recordPerPage
 		startIndex, err = strconv.Atoi(c.Query("startIndex"))
 
-		matchStage:=bson.D{{"$match",bson.D{{}}}}
-		groupStage:=bson.D{{"$group",bson.D{
-			{"_id",bson.D{{"_id","null"}}},
-			{"total_count",bson.D{"$sum",1}}},
-			{"data",bson.D{{"$push","$$ROOT"}}},
-		}}
-	
-		projectStage:=bson.D{
-			{"$project",bson.D{
-				{"_id",0},
-				{"total_count",1},
-				{"user_items", bson.D{{"$slice",[]interface{}{"$data",startIndex,recordPerPage}}}},
+		matchStage := bson.D{{"$match", bson.D{{}}}}
+		groupStage := bson.D{{"$group", bson.D{
+			{"_id", bson.D{{"_id", "null"}}},
+			{"total_count", bson.D{{"$sum", 1}}},
+			{"data", bson.D{{"$push", "$$ROOT"}}},
+		}}}
+
+		projectStage := bson.D{
+			{"$project", bson.D{
+				{"_id", 0},
+				{"total_count", 1},
+				{"user_items", bson.D{{"$slice", []interface{}{"$data", startIndex, recordPerPage}}}},
 			}},
 		}
-		result,err:=userCollection.Aggregate(ctx,mongo.Pipeline{
-			matchStage,groupStage,projectStage,
+		result, err := userCollection.Aggregate(ctx, mongo.Pipeline{
+			matchStage, groupStage, projectStage,
 		})
 		defer cancel()
-		if err!=nil{
-			c.JSON(http.StatusInternalServerError,gin.H{"error":"error occured while listing user items"})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
 		}
 		var allUsers []bson.M
-		if err =result.All(ctx,&allUsers);err!=nil{
+		if err = result.All(ctx, &allUsers); err != nil {
 			log.Fatal(err)
 		}
-		c.JSON(http.StatusOK,allUsers[0])
+		c.JSON(http.StatusOK, allUsers[0])
 	}
 }
-
 
 // only adimin can access this function
 
