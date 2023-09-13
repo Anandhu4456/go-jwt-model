@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"go-jwt/database"
 	"log"
 	"os"
@@ -53,6 +54,32 @@ func GenerateAllTokens(email, firstName, lastName, userType, uid string) (signed
 	}
 	return token, refreshToken, err
 
+}
+
+func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&SignedDetails{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(SECRET_KEY), nil
+		},
+	)
+	if err != nil {
+		msg = err.Error()
+		return
+	}
+	claims, ok := token.Claims.(*SignedDetails)
+	if !ok {
+		msg = fmt.Sprintf("token is invalid")
+		msg = err.Error()
+		return
+	}
+	if claims.ExpiresAt < time.Now().Unix(){
+		msg = fmt.Sprintf("token is expired")
+		msg = err.Error()
+		return
+	}
+	return claims,msg
 }
 func UpdateAllTokens(signedToken, signedRefreshToken, userId string) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
